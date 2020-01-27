@@ -1,13 +1,14 @@
 #Demonstrates basic Platforms
 
 import pygame
+pygame.font.init()
+level_font = pygame.font.SysFont('Comic Sans MS', 30)
 
 BLACK    = (   0,   0,   0)
 WHITE    = ( 255, 255, 255)
 BLUE     = (   0,   0, 255)
 RED      = ( 255,   0,   0)
 GREEN    = (   0, 255,   0)
-
 
 SCREEN_WIDTH  = 800
 SCREEN_HEIGHT = 600
@@ -186,6 +187,8 @@ class Level_01(Level):
         # Call the parent constructor
         Level.__init__(self, player)
 
+        self.level_name = 'Level 1'
+
         # Array with width, height, x, and y of platforms
         level = [[210, 20, 500, 500],
                  [210, 20, 200, 400],
@@ -215,6 +218,8 @@ class Level_02(Level):
     # Call the parent constructor
         Level.__init__(self, player)
 
+        self.level_name = 'Level 2'
+    
     # Create and add platforms just like in level 1
         level = [[210, 20, 50, 700],
                  [800, 20,  0, 800]
@@ -303,25 +308,22 @@ while not done:
         player.rect.y = SCREEN_HEIGHT
         if current_level_no < len(level_list) -1:
             current_level_no += 1
-    else:
-        # If player falls to the bottom, start at the top of the last level
-        current_position = player.rect.y + current_level.world_shift
-        if player.rect.y > 500:
-            player.rect.y = 0
-            current_level_no -= 1
 
     current_level = level_list[current_level_no]
     player.level = current_level
 
     if player.rect.x < 0:
-        player.rect.x = SCREEN_WIDTH
-
-    if player.rect.x > SCREEN_WIDTH:
         player.rect.x = 0
+
+    if player.rect.x > SCREEN_WIDTH - 35:
+        player.rect.x = SCREEN_WIDTH - 35
 
     # ALL CODE TO DRAW SHOULD GO BELOW THIS COMMENT
     current_level.draw(screen)
     active_sprite_list.draw(screen)
+
+    textsurface = level_font.render(current_level.level_name, False, RED)
+    screen.blit(textsurface, (0, 0))
 
     # ALL CODE TO DRAW SHOULD GO ABOVE THIS COMMENT
 
