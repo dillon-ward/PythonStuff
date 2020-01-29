@@ -1,32 +1,97 @@
 import pygame
 from platformer_presets import *
 
+# The following class is used to load images from a sprite sheet.
+# A sprite sheet is one large image that contains all the separate images that we need
+class SpriteSheet(object):
+    """ Class used to grab images out of a sprite sheet. """
+    
+    # This points to our sprite sheet image
+    sprite_sheet = None
+
+    def __init__(self, file_name):
+        """ Constructor. Pass in the file name of the sprite sheet. """
+
+        # Load the sprite sheet.
+        self.sprite_sheet = pygame.image.load(file_name).convert()
+
+    def get_image(self, x, y, width, height):
+        """ Grab a single image out of a larger spritesheet
+            Pass in the x, y location of the sprite
+            and the width and height of the sprite. """
+
+        # Create a new blank image
+        image = pygame.Surface([width, height]).convert()
+
+        # Copy the sprite from the large sheet onto the smaller image
+        image.blit(self.sprite_sheet, (0, 0), (x, y, width, height))
+
+        # Return the image
+        return image
+    
 class Player(pygame.sprite.Sprite):
     """ This class represents the bar at the bottom that the player
         controls. """
-
-    
+    image_frames = []
+    image = ""
     def __init__(self):
         """ Constructor function """
 
         super().__init__()
+        spritesheet = SpriteSheet("Images/cloud_spritesheet.png")
 
+        # Add all the images from the sprite sheet
+        image=spritesheet.get_image(0,0,300,300)
+        self.image_frames.append(image)
+        image=spritesheet.get_image(300,0,300,300)
+        self.image_frames.append(image)
+        image=spritesheet.get_image(600,0,300,300)
+        self.image_frames.append(image)
+        image=spritesheet.get_image(900,0,300,300)
+        self.image_frames.append(image)
+        image=spritesheet.get_image(0,300,300,300)
+        self.image_frames.append(image)
+        image=spritesheet.get_image(300,300,300,300)
+        self.image_frames.append(image)
+        image=spritesheet.get_image(600,300,300,300)
+        self.image_frames.append(image)
+        image=spritesheet.get_image(900,300,300,300)
+        self.image_frames.append(image)
+        image=spritesheet.get_image(0,600,300,300)
+        self.image_frames.append(image)
+        image=spritesheet.get_image(300,600,300,300)
+        self.image_frames.append(image)
+        image=spritesheet.get_image(600,600,300,300)
+        self.image_frames.append(image)
+        image=spritesheet.get_image(900,600,300,300)
+        self.image_frames.append(image)
+        image=spritesheet.get_image(0,900,300,300)
+        self.image_frames.append(image)
+        image=spritesheet.get_image(300,900,300,300)
+        self.image_frames.append(image)
+        image=spritesheet.get_image(600,900,300,300)
+        self.image_frames.append(image)
+        image=spritesheet.get_image(900,900,300,300)
+        self.image_frames.append(image)
+
+        # Set the first image
+        self.image = self.image_frames[0]
+        self.rect = self.image.get_rect()
+        
         # Create an image of the block, and fill it with a color.
         # We could of course replace this with a bitmap
-        width = 40
-        height = 60
+        width = 37
+        height = 47
         self.image = pygame.Surface([width, height])
         self.image.fill(RED)
         self.rect = self.image.get_rect()
 
-        
         self.change_x = 0
         self.change_y = 0
 
         # List of sprites we can bump against
         self.level = None
-
-
+        
     def update(self):
         """ Move the player. """
         
@@ -34,6 +99,11 @@ class Player(pygame.sprite.Sprite):
 
         self.rect.x += self.change_x
 
+        # Position the images on the player
+        pos = self.rect.x
+        frame=(pos//30)%len(self.image_frames)
+        self.image = self.image_frames[frame]
+        
         # See if we hit anything
         block_hit_list = pygame.sprite.spritecollide(self, self.level.platform_list, False)
         for block in block_hit_list:
@@ -60,6 +130,7 @@ class Player(pygame.sprite.Sprite):
 
             # Stop our vertical movement
             self.change_y = 0
+
 
     def calc_grav(self):
         """ Calculate effect of gravity. """
