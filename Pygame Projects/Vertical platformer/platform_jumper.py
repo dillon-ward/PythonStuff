@@ -74,6 +74,10 @@ pygame.display.set_caption("Platformer Jumper")
 # Create the player
 player = Player()
 
+# Assign sprite list to player
+sprites_list = pygame.sprite.Group()
+sprites_list.add(player)
+
 # Create all the levels
 level_list = []
 level_list.append(Level_01(player))
@@ -155,8 +159,10 @@ while not done:
     textsurface = level_font.render(current_level.level_name, False, RED)
     screen.blit(textsurface, (0, 0))
 
-    # ALL CODE TO DRAW SHOULD GO ABOVE THIS COMMENT
+    sprites_list.draw(screen)
 
+    # ALL CODE TO DRAW SHOULD GO ABOVE THIS COMMENT
+    
     # Limit to 60 frames per second
     clock.tick(60)
 
