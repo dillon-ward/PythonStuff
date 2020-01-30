@@ -1,5 +1,8 @@
 import pygame
+import os
 from platformer_presets import *
+
+dirname = os.path.dirname(__file__)
 
 # The following class is used to load images from a sprite sheet.
 # A sprite sheet is one large image that contains all the separate images that we need
@@ -13,7 +16,7 @@ class SpriteSheet(object):
         """ Constructor. Pass in the file name of the sprite sheet. """
 
         # Load the sprite sheet.
-        self.sprite_sheet = pygame.image.load(file_name).convert()
+        self.sprite_sheet = pygame.image.load(file_name).convert_alpha()
 
     def get_image(self, x, y, width, height):
         """ Grab a single image out of a larger spritesheet
@@ -21,7 +24,7 @@ class SpriteSheet(object):
             and the width and height of the sprite. """
 
         # Create a new blank image
-        image = pygame.Surface([width, height]).convert()
+        image = pygame.Surface([width, height], pygame.SRCALPHA)
 
         # Copy the sprite from the large sheet onto the smaller image
         image.blit(self.sprite_sheet, (0, 0), (x, y, width, height))
@@ -34,56 +37,52 @@ class Player(pygame.sprite.Sprite):
         controls. """
     image_frames = []
     image = ""
+
     def __init__(self):
         """ Constructor function """
 
         super().__init__()
-        spritesheet = SpriteSheet("Images/cloud_spritesheet.png")
+        spritesheet = SpriteSheet(os.path.join(dirname,"Images/cloud_spritesheet.png"))
 
         # Add all the images from the sprite sheet
-        image=spritesheet.get_image(0,0,300,300)
+        image=spritesheet.get_image(100,120,100,100)
         self.image_frames.append(image)
-        image=spritesheet.get_image(300,0,300,300)
+        image=spritesheet.get_image(400,120,100,100)
         self.image_frames.append(image)
-        image=spritesheet.get_image(600,0,300,300)
+        image=spritesheet.get_image(700,120,100,100)
         self.image_frames.append(image)
-        image=spritesheet.get_image(900,0,300,300)
+        image=spritesheet.get_image(1000,120,100,100)
         self.image_frames.append(image)
-        image=spritesheet.get_image(0,300,300,300)
+        image=spritesheet.get_image(100,420,100,100)
         self.image_frames.append(image)
-        image=spritesheet.get_image(300,300,300,300)
+        image=spritesheet.get_image(400,420,100,100)
         self.image_frames.append(image)
-        image=spritesheet.get_image(600,300,300,300)
+        image=spritesheet.get_image(700,420,100,100)
         self.image_frames.append(image)
-        image=spritesheet.get_image(900,300,300,300)
+        image=spritesheet.get_image(1000,420,100,100)
         self.image_frames.append(image)
-        image=spritesheet.get_image(0,600,300,300)
+        image=spritesheet.get_image(100,720,100,100)
         self.image_frames.append(image)
-        image=spritesheet.get_image(300,600,300,300)
+        image=spritesheet.get_image(400,720,100,100)
         self.image_frames.append(image)
-        image=spritesheet.get_image(600,600,300,300)
+        image=spritesheet.get_image(700,720,100,100)
         self.image_frames.append(image)
-        image=spritesheet.get_image(900,600,300,300)
+        image=spritesheet.get_image(1000,720,100,100)
         self.image_frames.append(image)
-        image=spritesheet.get_image(0,900,300,300)
+        image=spritesheet.get_image(100,1020,100,100)
         self.image_frames.append(image)
-        image=spritesheet.get_image(300,900,300,300)
+        image=spritesheet.get_image(400,1020,100,100)
         self.image_frames.append(image)
-        image=spritesheet.get_image(600,900,300,300)
+        image=spritesheet.get_image(700,1020,100,100)
         self.image_frames.append(image)
-        image=spritesheet.get_image(900,900,300,300)
+        image=spritesheet.get_image(1000,1020,100,100)
         self.image_frames.append(image)
-
-        # Set the first image
-        self.image = self.image_frames[0]
-        self.rect = self.image.get_rect()
         
         # Create an image of the block, and fill it with a color.
         # We could of course replace this with a bitmap
-        width = 37
-        height = 47
+        width = 100
+        height = 60
         self.image = pygame.Surface([width, height])
-        self.image.fill(RED)
         self.rect = self.image.get_rect()
 
         self.change_x = 0
@@ -91,6 +90,9 @@ class Player(pygame.sprite.Sprite):
 
         # List of sprites we can bump against
         self.level = None
+
+        # Set the first image to the player at the start
+        self.image = self.image_frames[0]
         
     def update(self):
         """ Move the player. """
@@ -98,11 +100,6 @@ class Player(pygame.sprite.Sprite):
         self.calc_grav()
 
         self.rect.x += self.change_x
-
-        # Position the images on the player
-        pos = self.rect.x
-        frame=(pos//30)%len(self.image_frames)
-        self.image = self.image_frames[frame]
         
         # See if we hit anything
         block_hit_list = pygame.sprite.spritecollide(self, self.level.platform_list, False)
@@ -130,7 +127,6 @@ class Player(pygame.sprite.Sprite):
 
             # Stop our vertical movement
             self.change_y = 0
-
 
     def calc_grav(self):
         """ Calculate effect of gravity. """
