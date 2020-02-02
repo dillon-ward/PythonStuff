@@ -1,11 +1,15 @@
 #Demonstrates basic Platforms
 
-import pygame
 from platformer_classes import *
 
 # Assign font for text
 pygame.font.init()
 level_font = pygame.font.SysFont('Comic Sans MS', 30)
+
+# Checks animation frames
+anim_idle_check = False
+anim_jump_check = False
+time = 0
 
 # Create platforms for the level
 class Level_01(Level):
@@ -100,10 +104,10 @@ clock = pygame.time.Clock()
 
 # -------- Main Program Loop -----------
 while not done:
+    time += 1
     for event in pygame.event.get(): # User did something
         if event.type == pygame.QUIT: # If user clicked close
             done = True # Flag that we are done so we exit this loop
-
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_LEFT:
                 player.go_left()
@@ -111,13 +115,43 @@ while not done:
                 player.go_right()
             if event.key == pygame.K_UP:
                 player.jump()
-
+                jump_check = True
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_LEFT and player.change_x < 0:
                 player.stop()
+                idle_check = True
             if event.key == pygame.K_RIGHT and player.change_x > 0:
                 player.stop()
+                idle_check = True
 
+    # Calculates when idle animation can play
+    if time % 30 == 0:
+        anim_idle_check = True
+    else:
+        anim_idle_check = False
+
+    # Calculates when jump animation will play
+    if time % 10 == 0:
+        anim_jump_check = True
+    else:
+        anim_jump_check = False
+
+    # Checks if the idle animation will play
+    if idle_check and anim_idle_check:
+        player.anim_idle(idle_count)
+        if idle_count == 3:
+            idle_count = 0
+        else:
+            idle_count += 1
+
+    # Checks if the jump animation will play
+    if jump_check and anim_jump_check:
+        player.anim_jump(jump_count)
+        if jump_count == 7:
+            jump_count = 7
+        else:
+            jump_count += 1
+    
     # Update the player.
     active_sprite_list.update()
 
@@ -146,11 +180,11 @@ while not done:
     current_level = level_list[current_level_no]
     player.level = current_level
 
-    if player.rect.x < 0:
-        player.rect.x = 0
+    if player.rect.x < -25:
+        player.rect.x = -25
 
-    if player.rect.x > SCREEN_WIDTH - 35:
-        player.rect.x = SCREEN_WIDTH - 35
+    if player.rect.x > SCREEN_WIDTH - 90:
+        player.rect.x = SCREEN_WIDTH - 90
 
     # ALL CODE TO DRAW SHOULD GO BELOW THIS COMMENT
     current_level.draw(screen)

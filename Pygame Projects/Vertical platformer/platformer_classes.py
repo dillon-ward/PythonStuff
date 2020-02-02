@@ -87,7 +87,7 @@ class Player(pygame.sprite.Sprite):
 
         self.change_x = 0
         self.change_y = 0
-
+        
         # List of sprites we can bump against
         self.level = None
 
@@ -165,7 +165,16 @@ class Player(pygame.sprite.Sprite):
     def stop(self):
         """ Called when the user lets off the keyboard. """
         self.change_x = 0
+        
+    # --- Plays sprites animation
+    # Plays idle animation
+    def anim_idle(self, idle_count):
+        self.image = self.image_frames[idle_count]
 
+    # Playsjump animation
+    def anim_jump(self, jump_count):
+        self.image = self.image_frames[jump_count]
+                
 #Create the platform Class.  This uses simple block but we could have used
 #bitmaps from a sprite sheet.
 class Platform(pygame.sprite.Sprite):
