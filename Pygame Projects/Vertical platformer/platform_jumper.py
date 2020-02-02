@@ -9,6 +9,7 @@ level_font = pygame.font.SysFont('Comic Sans MS', 30)
 # Checks animation frames
 anim_idle_check = False
 anim_jump_check = False
+anim_move_check = False
 time = 0
 
 # Create platforms for the level
@@ -111,8 +112,10 @@ while not done:
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_LEFT:
                 player.go_left()
+                move_check = True
             if event.key == pygame.K_RIGHT:
                 player.go_right()
+                move_check = True
             if event.key == pygame.K_UP:
                 player.jump()
                 jump_check = True
@@ -124,7 +127,8 @@ while not done:
                 player.stop()
                 idle_check = True
 
-    # Calculates when idle animation can play
+    # --- Calculate animation frames
+    # Calculates when idle animation will play
     if time % 30 == 0:
         anim_idle_check = True
     else:
@@ -136,6 +140,13 @@ while not done:
     else:
         anim_jump_check = False
 
+    # Calculates when move animation will play
+    if time % 8 == 0:
+        anim_move_check = True
+    else:
+        anim_move_check = False
+
+    # --- Checks if animation will play
     # Checks if the idle animation will play
     if idle_check and anim_idle_check:
         player.anim_idle(idle_count)
@@ -151,6 +162,14 @@ while not done:
             jump_count = 7
         else:
             jump_count += 1
+
+    # Checks if the move animation will play
+    if move_check and anim_move_check:
+        player.anim_move(move_count)
+        if move_count == 15:
+            move_count = 12
+        else:
+            move_count += 1
     
     # Update the player.
     active_sprite_list.update()
