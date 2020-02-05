@@ -62,7 +62,7 @@ class Level_02(Level):
 
         pixel_platform = SpriteSheet(os.path.join(dirname,"Images/platform_stone.png"))
 
-        image = pixel_platform.get_image(100, 100, 100, 20)
+        image = pixel_platform.get_image(37, 113, 271-37, 149-113)
 
         level = [[210, 20, 300, 100],
                  [210, 20, 550, 195],
@@ -79,9 +79,8 @@ class Level_02(Level):
             block = Platform(platform[0], platform[1])
             block.rect.x = platform[2]
             block.rect.y = platform[3]
-            block.player = self.player
+            pygame.transform.scale(image, (platform[0], platform[1]), block.image)
             self.platform_list.add(block)
-            self.image = Platform(platform[0], platform[1])
 
 class Level_03(Level):
     """ Definition for level 3."""
@@ -98,7 +97,7 @@ class Level_03(Level):
         pixel_platform = SpriteSheet(os.path.join(dirname,"Images/platform_stone.png"))
 
         # Cut out the platform from the image
-        image = pixel_platform.get_image(100, 100, 100, 20)
+        image = pixel_platform.get_image(37, 113, 271-37, 149-113)
 
         level = [[800, 20, 0, 800]]
 
@@ -106,15 +105,8 @@ class Level_03(Level):
             block = Platform(platform[0], platform[1])
             block.rect.x = platform[2]
             block.rect.y = platform[3]
-            #block.player = self.player
-            block.image = image
+            pygame.transform.scale(image, (platform[0], platform[1]), block.image)
             self.platform_list.add(block)
-            #self.image = Platform(platform[0], platform[1])
-
-        # Create and add platforms just like in level 1
-
-
-
 
 """ Main Program """
 pygame.init()
