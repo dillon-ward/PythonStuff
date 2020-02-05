@@ -35,7 +35,8 @@ class SpriteSheet(object):
 class Player(pygame.sprite.Sprite):
     """ This class represents the bar at the bottom that the player
         controls. """
-    image_frames = []
+    image_frames_r = []
+    image_frames_l = []
     image = ""
 
     def __init__(self):
@@ -46,38 +47,41 @@ class Player(pygame.sprite.Sprite):
 
         # Add all the images from the sprite sheet
         image=spritesheet.get_image(100,120,100,100)
-        self.image_frames.append(image)
+        self.image_frames_r.append(image)
         image=spritesheet.get_image(400,120,100,100)
-        self.image_frames.append(image)
+        self.image_frames_r.append(image)
         image=spritesheet.get_image(700,120,100,100)
-        self.image_frames.append(image)
+        self.image_frames_r.append(image)
         image=spritesheet.get_image(1000,120,100,100)
-        self.image_frames.append(image)
+        self.image_frames_r.append(image)
         image=spritesheet.get_image(100,420,100,100)
-        self.image_frames.append(image)
+        self.image_frames_r.append(image)
         image=spritesheet.get_image(400,420,100,100)
-        self.image_frames.append(image)
+        self.image_frames_r.append(image)
         image=spritesheet.get_image(700,420,100,100)
-        self.image_frames.append(image)
+        self.image_frames_r.append(image)
         image=spritesheet.get_image(1000,420,100,100)
-        self.image_frames.append(image)
+        self.image_frames_r.append(image)
         image=spritesheet.get_image(100,720,100,100)
-        self.image_frames.append(image)
+        self.image_frames_r.append(image)
         image=spritesheet.get_image(400,720,100,100)
-        self.image_frames.append(image)
+        self.image_frames_r.append(image)
         image=spritesheet.get_image(700,720,100,100)
-        self.image_frames.append(image)
+        self.image_frames_r.append(image)
         image=spritesheet.get_image(1000,720,100,100)
-        self.image_frames.append(image)
+        self.image_frames_r.append(image)
         image=spritesheet.get_image(100,1020,100,100)
-        self.image_frames.append(image)
+        self.image_frames_r.append(image)
         image=spritesheet.get_image(400,1020,100,100)
-        self.image_frames.append(image)
+        self.image_frames_r.append(image)
         image=spritesheet.get_image(700,1020,100,100)
-        self.image_frames.append(image)
+        self.image_frames_r.append(image)
         image=spritesheet.get_image(1000,1020,100,100)
-        self.image_frames.append(image)
+        self.image_frames_r.append(image)
         
+        for i in self.image_frames_r:
+            self.image_frames_l.append(pygame.transform.flip(i, True, False))
+
         # Create an image of the block, and fill it with a color.
         # We could of course replace this with a bitmap
         width = 100
@@ -85,6 +89,7 @@ class Player(pygame.sprite.Sprite):
         self.image = pygame.Surface([width, height])
         self.rect = self.image.get_rect()
 
+        self.dir = 1
         self.change_x = 0
         self.change_y = 0
         
@@ -92,7 +97,7 @@ class Player(pygame.sprite.Sprite):
         self.level = None
 
         # Set the first image to the player at the start
-        self.image = self.image_frames[0]
+        self.image = self.image_frames_r[0]
         
     def update(self):
         """ Move the player. """
@@ -130,6 +135,8 @@ class Player(pygame.sprite.Sprite):
 
     def calc_grav(self):
         """ Calculate effect of gravity. """
+
+        grounded = False
         if self.change_y == 0:
             self.change_y = 1
         else:
@@ -139,6 +146,7 @@ class Player(pygame.sprite.Sprite):
         if self.rect.y >= SCREEN_HEIGHT - self.rect.height and self.change_y >= 0:
             self.change_y = 0
             self.rect.y = SCREEN_HEIGHT - self.rect.height
+            grounded = True
 
     def jump(self):
         """ Called when user hits 'jump' button. """
@@ -157,10 +165,12 @@ class Player(pygame.sprite.Sprite):
     def go_left(self):
         """ Called when the user hits the left arrow. """
         self.change_x = -6
+        self.dir = -1
 
     def go_right(self):
         """ Called when the user hits the right arrow. """
         self.change_x = 6
+        self.dir = 1
 
     def stop(self):
         """ Called when the user lets off the keyboard. """
@@ -169,11 +179,24 @@ class Player(pygame.sprite.Sprite):
     # --- Plays sprites animation
     # Plays idle animation
     def anim_idle(self, idle_count):
-        self.image = self.image_frames[idle_count]
+        if (self.dir == 1):
+            self.image = self.image_frames_r[idle_count]
+        else:
+            self.image = self.image_frames_l[idle_count]
 
     # Playsjump animation
     def anim_jump(self, jump_count):
-        self.image = self.image_frames[jump_count]
+        if (self.dir == 1):
+            self.image = self.image_frames_r[jump_count]
+        else:
+            self.image = self.image_frames_l[jump_count]
+
+    # Plays startup move animation
+    def anim_move(self, move_count):
+        if (self.dir == 1):
+            self.image = self.image_frames_r[move_count]
+        else:
+            self.image = self.image_frames_l[move_count]
                 
 #Create the platform Class.  This uses simple block but we could have used
 #bitmaps from a sprite sheet.
@@ -185,11 +208,9 @@ class Platform(pygame.sprite.Sprite):
         super().__init__()
 
         self.image = pygame.Surface([width, height])
-        self.image.fill(GREEN)
-
         self.rect = self.image.get_rect()
-
-class Level(object):
+        
+class Level(pygame.sprite.Sprite):
     """ This is a generic super-class used to define a level.
         Create a child class for each level with level-specific
         info. """
@@ -221,7 +242,7 @@ class Level(object):
         """ Draw everything on this level. """
 
         # Draw the background
-        screen.fill(BLUE)
+        screen.fill(GREY)
 
         # Draw all the sprite lists that we have
         self.platform_list.draw(screen)
