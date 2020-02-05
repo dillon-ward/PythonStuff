@@ -24,16 +24,22 @@ class Level_01(Level):
 
         self.level_name = 'Level 1'
 
+        # Set the level's platforms to the stone platform image
+        pixel_platform = SpriteSheet(os.path.join(dirname,"Images/platform_stone.png"))
+
+        # Cut out the platform from the image
+        image = pixel_platform.get_image(37, 113, 271-37, 149-113)
+
         # Array with width, height, x, and y of platforms
-        level = [[210, 20, 500, 500],
-                 [210, 20, 200, 400],
-                 [210, 20, 600, 300],
-                 [210, 20,  75, 180],
+        level = [[210, 20, 400, 100],
+                 [210, 20, 150, 180],
                  [210, 20, 350, 250],
                  [210, 20,   0, 300],
-                 [210, 20, 400, 100],
-                 [800, 20,   0, 600],
-                 [210, 20, -10, 520]
+                 [210, 20, 600, 300],
+                 [210, 20, 200, 400],
+                 [210, 20, 500, 500],
+                 [210, 20, -10, 520],
+                 [800, 20,   0, 600]
                  ]
 
         # Go through the array above and add platforms
@@ -41,23 +47,32 @@ class Level_01(Level):
             block = Platform(platform[0], platform[1])
             block.rect.x = platform[2]
             block.rect.y = platform[3]
-            block.player = self.player
+            pygame.transform.scale(image, (platform[0], platform[1]), block.image)
             self.platform_list.add(block)
-
+            
 class Level_02(Level):
     """ Definition for level 2. """
 
     def __init__(self, player):
         """ Create level 2. """
 
-    # Call the parent constructor
         Level.__init__(self, player)
 
         self.level_name = 'Level 2'
-    
-    # Create and add platforms just like in level 1
-        level = [[210, 20, 50, 700],
-                 [800, 20,  0, 800]
+
+        pixel_platform = SpriteSheet(os.path.join(dirname,"Images/platform_stone.png"))
+
+        image = pixel_platform.get_image(100, 100, 100, 20)
+
+        level = [[210, 20, 300, 100],
+                 [210, 20, 550, 195],
+                 [210, 20,  10, 300],
+                 [210, 20, 450, 375],
+                 [210, 20, 210, 450],
+                 [210, 20,  50, 550],
+                 [210, 20, 500, 650],
+                 [210, 20,  50, 700],
+                 [800, 20,   0, 800]
                 ]   
 
         for platform in level:
@@ -66,6 +81,40 @@ class Level_02(Level):
             block.rect.y = platform[3]
             block.player = self.player
             self.platform_list.add(block)
+            self.image = Platform(platform[0], platform[1])
+
+class Level_03(Level):
+    """ Definition for level 3."""
+
+    def __init__(self, player):
+        """ Create level 3."""
+
+    # Call the parent constructor
+        Level.__init__(self, player)
+
+        self.level_name = 'Level 3'
+
+        # Set the level's platforms to the stone platform image
+        pixel_platform = SpriteSheet(os.path.join(dirname,"Images/platform_stone.png"))
+
+        # Cut out the platform from the image
+        image = pixel_platform.get_image(100, 100, 100, 20)
+
+        level = [[800, 20, 0, 800]]
+
+        for platform in level:
+            block = Platform(platform[0], platform[1])
+            block.rect.x = platform[2]
+            block.rect.y = platform[3]
+            #block.player = self.player
+            block.image = image
+            self.platform_list.add(block)
+            #self.image = Platform(platform[0], platform[1])
+
+        # Create and add platforms just like in level 1
+
+
+
 
 """ Main Program """
 pygame.init()
@@ -87,6 +136,7 @@ sprites_list.add(player)
 level_list = []
 level_list.append(Level_01(player))
 level_list.append(Level_02(player))
+level_list.append(Level_03(player))
 
 # Set the current level
 current_level_no = 0
@@ -113,12 +163,18 @@ while not done:
             if event.key == pygame.K_LEFT:
                 player.go_left()
                 move_check = True
+                jump_check = False
+                idle_check = False
             if event.key == pygame.K_RIGHT:
                 player.go_right()
                 move_check = True
+                jump_check = False
+                idle_check = False
             if event.key == pygame.K_UP:
                 player.jump()
                 jump_check = True
+                move_check = False
+                idle_check = False
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_LEFT and player.change_x < 0:
                 player.stop()
@@ -126,6 +182,7 @@ while not done:
             if event.key == pygame.K_RIGHT and player.change_x > 0:
                 player.stop()
                 idle_check = True
+            move_check = False
 
     # --- Calculate animation frames
     # Calculates when idle animation will play
@@ -135,7 +192,7 @@ while not done:
         anim_idle_check = False
 
     # Calculates when jump animation will play
-    if time % 10 == 0:
+    if time % 6 == 0:
         anim_jump_check = True
     else:
         anim_jump_check = False
@@ -148,28 +205,37 @@ while not done:
 
     # --- Checks if animation will play
     # Checks if the idle animation will play
-    if idle_check and anim_idle_check:
-        player.anim_idle(idle_count)
-        if idle_count == 3:
-            idle_count = 0
-        else:
-            idle_count += 1
+    if idle_check:
+        if anim_idle_check:
+            player.anim_idle(idle_count)
+            if idle_count == 3:
+                idle_count = 0
+            else:
+                idle_count += 1
+    else:
+        idle_count = 0
 
     # Checks if the jump animation will play
-    if jump_check and anim_jump_check:
-        player.anim_jump(jump_count)
-        if jump_count == 7:
-            jump_count = 7
-        else:
-            jump_count += 1
+    if jump_check:
+        if anim_jump_check:
+            player.anim_jump(jump_count)
+            if jump_count == 7:
+                jump_count = 7
+            else:
+                jump_count += 1
+    else:
+        jump_count = 4
 
     # Checks if the move animation will play
-    if move_check and anim_move_check:
-        player.anim_move(move_count)
-        if move_count == 15:
-            move_count = 12
-        else:
-            move_count += 1
+    if move_check:
+        if anim_move_check:
+            player.anim_move(move_count)
+            if move_count == 15:
+                move_count = 12
+            else:
+                move_count += 1
+    else:
+        move_count = 8
     
     # Update the player.
     active_sprite_list.update()
@@ -200,10 +266,10 @@ while not done:
     player.level = current_level
 
     if player.rect.x < -25:
-        player.rect.x = -25
+        player.rect.x = SCREEN_WIDTH - 90
 
     if player.rect.x > SCREEN_WIDTH - 90:
-        player.rect.x = SCREEN_WIDTH - 90
+        player.rect.x = -25
 
     # ALL CODE TO DRAW SHOULD GO BELOW THIS COMMENT
     current_level.draw(screen)
@@ -225,4 +291,3 @@ while not done:
 # Be IDLE friendly. If you forget this line, the program will 'hang'
 # on exit.
 pygame.quit()
-
