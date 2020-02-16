@@ -1,4 +1,5 @@
 import pygame
+from pygame import *
 import os
 import random
 
@@ -285,9 +286,6 @@ while not done:
     bullet_list.draw(screen)
     for b in enemyBullets:
         draw.rect(screen, (RED), b)
-
-    # Blit image of user sprite on screen
-    screen.blit(spaceship, (x_coord, y_coord))
 
     # Blit image of user sprite on screen
     screen.blit(spaceship, (x_coord, y_coord))

@@ -1,6 +1,8 @@
 #Demonstrates basic Platforms
-
 from platformer_classes import *
+
+# Define some music
+cave_theme = pygame.mixer.Sound(os.path.join(dirname, "Music/cave_theme.ogg"))
 
 # Assign font for text
 pygame.font.init()
@@ -11,6 +13,18 @@ anim_idle_check = False
 anim_jump_check = False
 anim_move_check = False
 time = 0
+
+# Frame check for idle animation
+idle_count = 0
+idle_check = False
+
+# Frame check for jump animation
+jump_count = 4
+jump_check = False
+
+# Frame check for move animation
+move_count = 8
+move_check = False
 
 # Create platforms for the level
 class Level_01(Level):
@@ -25,10 +39,10 @@ class Level_01(Level):
         self.level_name = 'Level 1'
 
         # Set the level's platforms to the stone platform image
-        pixel_platform = SpriteSheet(os.path.join(dirname,"Images/platform_stone.png"))
+        pixel_platform = SpriteSheet(os.path.join(dirname, "Images/platform_stone.png"))
 
         # Cut out the platform from the image
-        image = pixel_platform.get_image(37, 113, 271-37, 149-113)
+        platform_image = pixel_platform.get_image(37, 113, 271-37, 149-113)
 
         # Array with width, height, x, and y of platforms
         level = [[210, 20, 400, 100],
@@ -47,7 +61,7 @@ class Level_01(Level):
             block = Platform(platform[0], platform[1])
             block.rect.x = platform[2]
             block.rect.y = platform[3]
-            pygame.transform.scale(image, (platform[0], platform[1]), block.image)
+            pygame.transform.scale(platform_image, (platform[0], platform[1]), block.image)
             self.platform_list.add(block)
             
 class Level_02(Level):
@@ -99,7 +113,15 @@ class Level_03(Level):
         # Cut out the platform from the image
         image = pixel_platform.get_image(37, 113, 271-37, 149-113)
 
-        level = [[800, 20, 0, 800]]
+        level = [[210, 20,  10, 100],
+                 [210, 20, 550, 200],
+                 [210, 20,  10, 300],
+                 [210, 20, 550, 400],
+                 [210, 20,  10, 500],
+                 [210, 20, 550, 600],
+                 [210, 20,  10, 700],
+                 [800, 20,   0, 800]
+                ]
 
         for platform in level:
             block = Platform(platform[0], platform[1])
@@ -274,6 +296,8 @@ while not done:
 
     # ALL CODE TO DRAW SHOULD GO ABOVE THIS COMMENT
     
+    # Play music
+    cave_theme.play()
     # Limit to 60 frames per second
     clock.tick(60)
 
