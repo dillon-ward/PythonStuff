@@ -2,7 +2,8 @@
 from platformer_classes import *
 
 # Define some music
-cave_theme = pygame.mixer.Sound(os.path.join(dirname, "Music/cave_theme.ogg"))
+pygame.init()
+cave_theme = pygame.mixer.Sound(os.path.join(dirname, "Music/cave_theme.wav"))
 
 # Assign font for text
 pygame.font.init()
@@ -167,6 +168,9 @@ done = False
 
 clock = pygame.time.Clock()
 
+# Play music
+cave_theme.play()
+
 # -------- Main Program Loop -----------
 while not done:
     time += 1
@@ -296,8 +300,6 @@ while not done:
 
     # ALL CODE TO DRAW SHOULD GO ABOVE THIS COMMENT
     
-    # Play music
-    cave_theme.play()
     # Limit to 60 frames per second
     clock.tick(60)
 

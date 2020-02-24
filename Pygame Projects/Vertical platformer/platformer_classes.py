@@ -231,6 +231,12 @@ class Level(object):
             platforms collide with the player. """
         self.platform_list = pygame.sprite.Group()
         self.player = player
+        stone_background = SpriteSheet(os.path.join(dirname,"Images/stone_background.png"))
+        background_img = stone_background.get_image(0, 0, 480, 480)
+        self.background = pygame.Surface((800, 1600))
+        background_tile = pygame.transform.scale(background_img, (800, 800))
+        self.background.blit(background_tile, [0, 0])
+        self.background.blit(background_tile, [0, 800])
 
     # Update everything on this level
     def update(self):
@@ -240,8 +246,8 @@ class Level(object):
     def draw(self, screen):
         """ Draw everything on this level. """
 
-        # Draw the background
-        screen.fill(GREY)
+        # Load and draw background
+        screen.blit(self.background, [0, -400 + self.world_shift])
 
         # Draw all the sprite lists that we have
         self.platform_list.draw(screen)
