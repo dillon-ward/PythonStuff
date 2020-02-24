@@ -1,32 +1,6 @@
 #Demonstrates basic Platforms
 from platformer_classes import *
 
-# Define some music
-pygame.init()
-cave_theme = pygame.mixer.Sound(os.path.join(dirname, "Music/cave_theme.wav"))
-
-# Assign font for text
-pygame.font.init()
-level_font = pygame.font.SysFont('Comic Sans MS', 30)
-
-# Checks animation frames
-anim_idle_check = False
-anim_jump_check = False
-anim_move_check = False
-time = 0
-
-# Frame check for idle animation
-idle_count = 0
-idle_check = False
-
-# Frame check for jump animation
-jump_count = 4
-jump_check = False
-
-# Frame check for move animation
-move_count = 8
-move_check = False
-
 # Create platforms for the level
 class Level_01(Level):
     """ Definition for level 1. """
@@ -132,7 +106,31 @@ class Level_03(Level):
             self.platform_list.add(block)
 
 """ Main Program """
+# Define some music
 pygame.init()
+cave_theme = pygame.mixer.Sound(os.path.join(dirname, "Music/cave_theme.wav"))
+
+# Assign font for text
+pygame.font.init()
+level_font = pygame.font.SysFont('Comic Sans MS', 30)
+
+# Checks animation frames
+anim_idle_check = False
+anim_jump_check = False
+anim_move_check = False
+time = 0
+
+# Frame check for idle animation
+idle_count = 0
+idle_check = False
+
+# Frame check for jump animation
+jump_count = 4
+jump_check = False
+
+# Frame check for move animation
+move_count = 8
+move_check = False
 
 # Set the height and width of the screen
 size = [SCREEN_WIDTH, SCREEN_HEIGHT]
