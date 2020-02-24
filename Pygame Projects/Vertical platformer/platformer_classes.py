@@ -37,7 +37,7 @@ class Player(pygame.sprite.Sprite):
         controls. """
     image_frames_r = [] # Frames of images facing right
     image_frames_l = [] # Frames of images facing left
-    image = ""
+    image = ''
 
     def __init__(self):
         """ Constructor function """
@@ -86,7 +86,6 @@ class Player(pygame.sprite.Sprite):
         for i in self.image_frames_r:
             self.image_frames_l.append(pygame.transform.flip(i, True, False)) # True for horizontal flip
 
-        
         # Create a block of the player
         width = 100
         height = 60
@@ -153,6 +152,14 @@ class Player(pygame.sprite.Sprite):
             # Stop our vertical movement
             self.change_y = 0
 
+    def go_right(self):
+        self.change_x = 6 # Player goes right by 6
+        self.dir = 1 # Direction turns right
+
+    def go_left(self):
+        self.change_x = -6 # Player goes left by 6
+        self.dir = -1 # Direction turns left
+
     def jump(self):
         """ Called when user hits 'jump' button. """
 
@@ -165,43 +172,29 @@ class Player(pygame.sprite.Sprite):
         if len(platform_hit_list) > 0 or self.rect.bottom >= SCREEN_HEIGHT:
             self.change_y = -9 # Player goes up by 9 pixels
             
-    def go_left(self):
-        """ Called when the user hits the left arrow. """
-        self.change_x = -6 # Player goes left by 6
-        self.dir = -1 # Direction turns left
-
-    def go_right(self):
-        """ Called when the user hits the right arrow. """
-        self.change_x = 6 # Player goes right by 6
-        self.dir = 1 # Direction turns right
 
     def stop(self):
-        """ Called when the user lets off the keyboard. """
+        """ Called when the user lets go of an arrow key. """
         self.change_x = 0
-        
-    # --- Plays sprites animation
-    # Plays idle animation
-    # From either left or right frames depending on direction
-    def anim_idle(self, idle_count):
-        if (self.dir == 1):
-            self.image = self.image_frames_r[idle_count]
-        else:
-            self.image = self.image_frames_l[idle_count]
 
-    # Plays jump animation
+    def anim_move(self, move_count):
+        if self.dir == 1:
+            self.image = self.image_frames_r[move_count]
+        else:
+            self.image = self.image_frames_l[move_count]
+
     def anim_jump(self, jump_count):
-        if (self.dir == 1):
+        if self.dir == 1:
             self.image = self.image_frames_r[jump_count]
         else:
             self.image = self.image_frames_l[jump_count]
 
-    # Plays startup move animation
-    def anim_move(self, move_count):
-        if (self.dir == 1):
-            self.image = self.image_frames_r[move_count]
+    def anim_idle(self, idle_count):
+        if self.dir == 1:
+            self.image = self.image_frames_r[idle_count]
         else:
-            self.image = self.image_frames_l[move_count]
-                
+            self.image = self.image_frames_l[idle_count]
+
 # Create the platform Class
 class Platform(pygame.sprite.Sprite):
     """ Platform the user can jump on """

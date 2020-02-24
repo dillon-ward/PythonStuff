@@ -114,23 +114,16 @@ cave_theme = pygame.mixer.Sound(os.path.join(dirname, "Music/cave_theme.wav"))
 pygame.font.init()
 level_font = pygame.font.SysFont('Comic Sans MS', 30)
 
-# Checks animation frames
-anim_idle_check = False
-anim_jump_check = False
-anim_move_check = False
+
 time = 0
+
+move_count = 0
 
 # Frame check for idle animation
 idle_count = 0
-idle_check = False
 
 # Frame check for jump animation
 jump_count = 4
-jump_check = False
-
-# Frame check for move animation
-move_count = 8
-move_check = False
 
 # Set the height and width of the screen
 size = [SCREEN_WIDTH, SCREEN_HEIGHT]
@@ -178,80 +171,43 @@ while not done:
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_LEFT:
                 player.go_left()
-                move_check = True
-                jump_check = False
-                idle_check = False
             if event.key == pygame.K_RIGHT:
                 player.go_right()
-                move_check = True
-                jump_check = False
-                idle_check = False
             if event.key == pygame.K_UP:
                 player.jump()
-                jump_check = True
-                move_check = False
-                idle_check = False
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_LEFT and player.change_x < 0:
                 player.stop()
-                idle_check = True
             if event.key == pygame.K_RIGHT and player.change_x > 0:
                 player.stop()
-                idle_check = True
-            move_check = False
 
-    # --- Calculate animation frames
-    # Calculates when idle animation will play
-    if time % 30 == 0:
-        anim_idle_check = True
-    else:
-        anim_idle_check = False
-
-    # Calculates when jump animation will play
-    if time % 6 == 0:
-        anim_jump_check = True
-    else:
-        anim_jump_check = False
-
-    # Calculates when move animation will play
-    if time % 8 == 0:
-        anim_move_check = True
-    else:
-        anim_move_check = False
-
-    # --- Checks if animation will play
-    # Checks if the idle animation will play
-    if idle_check:
-        if anim_idle_check:
-            player.anim_idle(idle_count)
-            if idle_count == 3:
-                idle_count = 0
-            else:
-                idle_count += 1
-    else:
-        idle_count = 0
-
-    # Checks if the jump animation will play
-    if jump_check:
-        if anim_jump_check:
+    # Animation
+    if player.change_y < 0 or player.change_y > 0:
+        if time % 6 == 0:
             player.anim_jump(jump_count)
-            if jump_count == 7:
-                jump_count = 7
-            else:
+            if jump_count != 7:
                 jump_count += 1
-    else:
-        jump_count = 4
-
-    # Checks if the move animation will play
-    if move_check:
-        if anim_move_check:
+        move_count = 8
+    elif player.change_x > 0 or player.change_x < 0:
+        if time % 8 == 0:
             player.anim_move(move_count)
             if move_count == 15:
                 move_count = 12
             else:
                 move_count += 1
+        jump_count = 4
+    if player.change_x == 0 and player.change_y == 0:
+        if time % 30 == 0:
+            player.anim_idle(idle_count)
+            if idle_count == 3:
+                idle_count = 0
+            else:
+                idle_count += 1
+            move_count = 8
+            jump_count = 4
     else:
-        move_count = 8
+        idle_count = 0
+
     
     # Update the player.
     active_sprite_list.update()
