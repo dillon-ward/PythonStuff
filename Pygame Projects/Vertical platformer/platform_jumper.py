@@ -167,7 +167,7 @@ done = False
 clock = pygame.time.Clock()
 
 # Play music
-cave_theme.play()
+cave_theme.play(-1)
 
 # -------- Main Program Loop -----------
 while not done:
