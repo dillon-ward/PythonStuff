@@ -1,4 +1,5 @@
 import os
+import math
 from platformer_presets import *
 
 # Gets the path of a directory
@@ -99,6 +100,18 @@ class Player(pygame.sprite.Sprite):
         self.change_x = 0
         self.change_y = 0
 
+        # Set animation timer to zero
+        self.time = 0
+
+        # Frame number for move animation
+        self.move_count = 8
+
+        # Frame number for idle animation
+        self.idle_count = 0
+
+        # Frame number for jump animation
+        self.jump_count = 4
+
         # Set the first frame for the player at the start
         self.image = self.image_frames_r[0]
 
@@ -106,7 +119,6 @@ class Player(pygame.sprite.Sprite):
         """ Calculate effect of gravity. """
 
         # Checks if gravity acts upon the player
-        grounded = False
         if self.change_y == 0:
             self.change_y = 1 # Speed at which the player falls
         else:
@@ -115,7 +127,6 @@ class Player(pygame.sprite.Sprite):
         # Checks if the player is on the ground
         if self.rect.y >= SCREEN_HEIGHT - self.rect.height and self.change_y >= 0:
             self.change_y = 0 # Y-coordinate doesn't change when player is grounded
-            grounded = True 
 
     def update(self):
         """ Move the player. """
@@ -151,6 +162,58 @@ class Player(pygame.sprite.Sprite):
 
             # Stop our vertical movement
             self.change_y = 0
+
+        # If the player gets near the top, shift the world down (+y)
+        if self.rect.y <= 200:
+            diff = self.rect.y - 200
+            self.rect.y = 200
+            self.level.shift_world(-diff)
+
+        # If the player gets near the bottom, shift the world up (-y)
+        if self.rect.y >= 400:
+            diff = 400 - self.rect.y
+            self.rect.y = 400
+            self.level.shift_world(diff)
+
+        if self.rect.x < -25:
+            self.rect.x = SCREEN_WIDTH - 90
+
+        if self.rect.x > SCREEN_WIDTH - 90:
+            self.rect.x = -25
+
+        # Animation
+        self.time = self.time + 1
+
+        if self.change_y != 0:
+            # Play jumping animation if moving vertically
+            if self.time % 6 == 0:
+                self.anim_jump(self.jump_count)
+                if self.jump_count != 7:
+                    self.jump_count += 1
+            self.move_count = 8
+        elif self.change_x != 0:
+            # Play move animation if moving horizontally
+            if self.time % 8 == 0:
+                self.anim_move(self.move_count)
+                if self.move_count == 15:
+                    self.move_count = 12
+                else:
+                    self.move_count += 1
+            self.jump_count = 4
+
+        if self.change_x == 0 and self.change_y == 0:
+            # Play idle animation if not moving at all
+            if self.time % 30 == 0:
+                self.anim_idle(self.idle_count)
+                if self.idle_count == 3:
+                    self.idle_count = 0
+                else:
+                    self.idle_count += 1
+                self.move_count = 8
+                self.jump_count = 4
+        else:
+            # Reset idle counter
+            self.idle_count = 0
 
     def go_right(self):
         self.change_x = 6 # Player goes right by 6
@@ -199,13 +262,65 @@ class Player(pygame.sprite.Sprite):
 class Platform(pygame.sprite.Sprite):
     """ Platform the user can jump on """
 
-    def __init__(self, width, height):
+    image = None
+
+    def __init__(self, width, height, x, y):
         
         super().__init__()
 
+        if Platform.image == None:
+            # Set the level's platforms to the stone platform image
+            pixel_platform = SpriteSheet(os.path.join(dirname, "Images/platform_stone.png"))
+
+            # Cut out the platform from the image
+            Platform.image = pixel_platform.get_image(37, 113, 271-37, 149-113)
+
         # Create a block for the platforms
         self.image = pygame.Surface([width, height])
+
+        # Create surface scaled for platform height
+        # Calculates how many pixels wide the scaled up image needs to be to maintain the aspect ratio
+        scale_width = int((height / Platform.image.get_height()) * Platform.image.get_width())
+        # Create a surface to take the scaled up image
+        scale_surface = pygame.Surface([scale_width, height])
+        # Scale the image up
+        pygame.transform.scale(Platform.image, (scale_width, height), scale_surface)
+
+        # Calculate number of pixels in the scaled up image for 10 source pixels
+        lr_width = (height / Platform.image.get_height()) * 10
+        # Calculate the minumum number of pixels
+        lr_width_min = int(math.floor(lr_width))
+        # Calculate the maximum number of pixels
+        lr_width_max = int(math.ceil(lr_width))
+
+        # self.image.fill(RED)
+
+        # Draw the leftmost 10 pixels (scaled up minimum) in to the destination surface
+        self.image.blit(scale_surface, (0, 0), (0, 0, lr_width_min, height))
+        # Draw the rightmost 10 pixels (scaled up minimum) in to the destination surface
+        self.image.blit(scale_surface, (width - lr_width_min, 0), (scale_width - lr_width_min, 0, lr_width_min, height))
+
+        # Calculate number of pixels left to draw in the platform
+        width_left = width - (lr_width_min * 2)
+        # Calculate the x position to draw the next segment at
+        out_left = lr_width_min
+        # Calculate the number of source pixels to use for the middle (using the max scaled pixels)
+        inner_width = scale_width - (lr_width_max * 2)
+        # Draw the middle tiles
+        while width_left > 0:
+            # Calculate how much to draw
+            blit_width = min(width_left, inner_width)
+            # Draw the segment
+            self.image.blit(scale_surface, (out_left, 0), (lr_width_max, 0, blit_width, height))
+            # Increase x position by the amount we drew
+            out_left += blit_width
+            # Decrease the amount to draw by how much we drew
+            width_left -= blit_width
+
+        # Set self rectangle
         self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
 
 class Level(object):
     """ This is a generic super-class used to define a level.
@@ -224,12 +339,14 @@ class Level(object):
             platforms collide with the player. """
         self.platform_list = pygame.sprite.Group()
         self.player = player
+
+        # Create background surface
         stone_background = SpriteSheet(os.path.join(dirname,"Images/stone_background.png"))
         background_img = stone_background.get_image(0, 0, 480, 480)
-        self.background = pygame.Surface((800, 1600))
-        background_tile = pygame.transform.scale(background_img, (800, 800))
+        self.background = pygame.Surface((SCREEN_WIDTH, SCREEN_WIDTH * 2))
+        background_tile = pygame.transform.scale(background_img, (SCREEN_WIDTH, SCREEN_WIDTH))
         self.background.blit(background_tile, [0, 0])
-        self.background.blit(background_tile, [0, 800])
+        self.background.blit(background_tile, [0, SCREEN_WIDTH])
 
     # Update everything on this level
     def update(self):
@@ -240,7 +357,7 @@ class Level(object):
         """ Draw everything on this level. """
 
         # Load and draw background
-        screen.blit(self.background, [0, -400 + self.world_shift])
+        screen.blit(self.background, [0, -(SCREEN_WIDTH / 2) + self.world_shift])
 
         # Draw all the sprite lists that we have
         self.platform_list.draw(screen)
